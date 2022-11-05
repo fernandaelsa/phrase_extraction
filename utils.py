@@ -26,8 +26,7 @@ class Phrase:
 
     def as_span(self, label):
         '''
-        input: sorted list of token indices, such as [3,4,5,6,10,15,16] and its category label (e.g. SUBJECT, OBJECT)
-        output: a list of Span objects, such that each gapless index sequences are mapped to one span object e.g. [[3:7], [10:11], [15:17]]
+        return a list of Span objects and their labels, such that each gapless index sequences are mapped to one span object e.g. [[3:7], [10:11], [15:17]]
         '''
         indices = list(set(t.i for t in self.tokens))
         indices.sort()
@@ -192,7 +191,7 @@ class Extracted:
         if display_tree:
             displacy.render(self.whole_phrase[0].doc, style="dep", options={"compact": False, "bg": "#09a3d5",
            "color": "white", "font": "Source Sans Pro",
-           "collapse_phrases" : True})
+           "collapse_phrases": True})
 
 
 # helper functions

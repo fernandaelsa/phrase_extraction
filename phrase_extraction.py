@@ -170,8 +170,8 @@ def phrase_spans(doc):
     assign_depth(root)
 
     extracted = extract(root)
-    spans = reduce(lambda x,y: x+y, extracted.as_span(), [])
-    doc.spans['sc'] = spans
+    spans = reduce(lambda x,y: x+y, extracted.as_span(), []) # all spans in one list
+    doc.spans['sc'] = spans # create a new span group in the doc
 
     return doc
 
@@ -203,7 +203,6 @@ if __name__ == '__main__':
     nlp.add_pipe('phrase_spans')
 
     sentence = "The controller and processor shall act to ensure that any natural person acting under the authority of the controller or the processor who has access to personal data does not process personal data except on instructions from the controller, unless he or she is required to do so by Union or Member State law."
-    # sentence = simplify_sentence(sentence)
 
     doc = nlp(sentence)
     print(doc.spans['sc'])
