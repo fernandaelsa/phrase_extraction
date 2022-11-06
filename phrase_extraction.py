@@ -1,5 +1,6 @@
 import spacy
 from spacy import Language
+from spacy.tokens import Doc
 
 from utils import *
 
@@ -39,7 +40,7 @@ def find_times_conds(potential_cond_roots):
     conds = []
     for cond_phrase in potential_cond_roots:
         if len(cond_phrase) > 1:
-            if cond_phrase.has_trigger(condition_trigger):
+            if cond_phrase.has_trigger(condition_trigger) and cond_phrase.as_str().strip() not in condition_trigger:
                 if cond_phrase.has_trigger(time_point):
                     times.append(cond_phrase)
                 else:
@@ -164,6 +165,10 @@ def extract_sentence(doc):
     return extract(root)
 
 
+# register custom extension attributes
+Doc.set_extension('extracted', default=None)
+
+
 @Language.component('phrase_spans')
 def phrase_spans(doc):
     root = find_root(doc)
@@ -172,6 +177,7 @@ def phrase_spans(doc):
     extracted = extract(root)
     spans = reduce(lambda x,y: x+y, extracted.as_span(), []) # all spans in one list
     doc.spans['sc'] = spans # create a new span group in the doc
+    doc._.extracted = extracted # store the extracted sentence in the doc
 
     return doc
 
@@ -205,4 +211,5 @@ if __name__ == '__main__':
     sentence = "The controller and processor shall act to ensure that any natural person acting under the authority of the controller or the processor who has access to personal data does not process personal data except on instructions from the controller, unless he or she is required to do so by Union or Member State law."
 
     doc = nlp(sentence)
+    doc._.extracted.print(display_tree=False)
     print(doc.spans['sc'])
