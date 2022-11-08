@@ -22,4 +22,3 @@ Exporting the annotation database as spacy file:
 ```
 prodigy data-to-spacy ./output_dataset --spancat initial_gold
 ```
-

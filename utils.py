@@ -5,7 +5,7 @@ from spacy import displacy
 
 
 # hard-coded triggers
-condition_trigger = ['without', 'within', 'where not', 'where', 'when not', 'when', 'upon', 'until not', 'until', 'unless not', 'unless and until', 'unless', 'timely', 'subject to', 'regardless of', 'provided that not', 'provided that', 'prior to', 'only if', 'not to exceed', 'not subject to', 'not later than', 'not equal to', 'not earlier than' 'no later than', 'not earlier than', 'no more than', 'no less than', 'no later than', 'no earlier than', 'more than or equal to', 'more than', 'minimum of', 'minimum', 'maximum of', 'maximum', 'lesser than', 'lesser of', 'lesser', 'less than or equal to', 'less than', 'least of', 'least', 'later than', 'last of', 'irrespective of', 'in the case of', 'in the absence of', 'if not', 'if', 'highest', 'greatest of', 'greater than or equal to', 'greater than', 'greater of', 'greater', 'first of', 'extended', 'expressly', 'except', 'exceeds', 'exceed', 'exactly', 'equal to', 'earlier than', 'during', 'conditioned upon', 'conditioned on', 'before', 'at the time when', 'at the time', 'at the latest', 'at most', 'at least', 'as soon as', 'as long as', 'after']
+condition_trigger = ['without', 'within', 'where not', 'where', 'when not', 'when', 'upon', 'until not', 'until', 'unless not', 'unless and until', 'unless', 'timely', 'taking into account', 'subject to', 'regardless of', 'provided that not', 'provided that', 'prior to', 'only if', 'not to exceed', 'not subject to', 'not later than', 'not equal to', 'not earlier than' 'no later than', 'not earlier than', 'no more than', 'no less than', 'no later than', 'no earlier than', 'more than or equal to', 'more than', 'minimum of', 'minimum', 'maximum of', 'maximum', 'lesser than', 'lesser of', 'lesser', 'less than or equal to', 'less than', 'least of', 'least', 'later than', 'last of', 'irrespective of', 'in the case of', 'in the absence of', 'if not', 'if', 'highest', 'greatest of', 'greater than or equal to', 'greater than', 'greater of', 'greater', 'first of', 'extended', 'expressly', 'except', 'exceeds', 'exceed', 'exactly', 'equal to', 'earlier than', 'during', 'conditioned upon', 'conditioned on', 'before', 'at the time when', 'at the time', 'at the latest', 'at most', 'at least', 'as soon as', 'as long as', 'after']
 
 time_point = ['years', 'year', 'weeks', 'week', 'seconds', 'second', 'period', 'periods', 'months', 'month', 'minutes', 'minute', 'hours', 'hour', 'days', 'day']
 
@@ -228,3 +228,63 @@ def assign_depth(token, current_depth=0):
     for child in token.children:
         assign_depth(child, current_depth+1)
 
+
+# for displacy span visualization
+span_colors = {
+    'SUBJECT': '#98DDCA',
+    'OBJECT': '#98D6EA',
+    'CONDITION': '#F5B5FC',
+    'TIME': '#F0F696',
+    'SIGNAL': '#C84361',
+    'VERB': '#FFAAA7',
+    'OP_VERB': '#FFD3B4',
+    'OP_SUBJECT': '#D5ECC2',
+    'OP_OBJECT': '#BAE5E5',
+    'OP_CONDITION': '#F3D1F4',
+    'OP_TIME': '#F5FCC1',
+    'OP_SIGNAL': '#E78775',
+}
+
+# for pandas dataframe table visualization
+def html_table(df):
+    
+    """
+    From https://stackoverflow.com/a/49687866/2007153
+    
+    Get a Jupyter like html of pandas dataframe
+    
+    """
+
+    styles = [
+        #table properties
+        dict(selector=" ", 
+             props=[("margin","0"),
+                    ("font-family",'"Helvetica", "Arial", sans-serif'),
+                    ("border-collapse", "collapse"),
+                    ("border","none"),
+                    # ("border", "2px solid #000000")
+                       ]),
+
+        #header color - optional
+        dict(selector="thead", 
+             props=[("background-color","#9eddff")
+                   ]),
+
+        #background shading
+        dict(selector="tbody tr:nth-child(even)",
+             props=[("background-color", "#fff")]),
+        dict(selector="tbody tr:nth-child(odd)",
+             props=[("background-color", "#eee")]),
+
+        #cell spacing
+        dict(selector="td", 
+             props=[("padding", ".5em")]),
+
+        #header cell properties
+        dict(selector="th", 
+             props=[("font-size", "100%"),
+                    ("text-align", "center")]),
+
+
+    ]
+    return (df.style.set_table_styles(styles)).to_html()
