@@ -1,7 +1,20 @@
 # phrase_extraction
 
+## Extracting from text files
 
-## annotating using Prodigy
+Put each sentence into a .txt file (one sentence per file) in the `input/realization_document/` and `input/regulatory_document/` folders.
+
+Additionally, save the spaCy model with the span categorization pipeline under the `models/` folder.
+
+Finally, to extract all input text files using the model, run the Python script with the path to the above saved model:
+```
+python extract_docs.py <model_path>
+```
+
+You can find the resulting .html files in the `result/` folder.
+
+
+## Annotating using Prodigy
 
 Using the suggestions of the Method A that you can manually correct:
 ```
