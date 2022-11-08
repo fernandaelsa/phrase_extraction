@@ -7,9 +7,6 @@ import pandas as pd
 from spacy import displacy
 from phrase_extraction import *
 
-# annotation labels of spans
-categories = ['SUBJECT', 'SIGNAL', 'VERB', 'TIME', 'CONDITION', 'OBJECT', 'OP_SUBJECT', 'OP_SIGNAL', 'OP_VERB', 'OP_TIME', 'OP_CONDITION', 'OP_OBJECT']
-
 
 def read_documents(directory): 
   '''reads in txts of regulatory and realization documents

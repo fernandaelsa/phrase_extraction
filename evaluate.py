@@ -42,5 +42,9 @@ scores = Scorer.score_spans(examples, 'sc', getter=lambda doc, attr: doc.spans['
 print(f"Precision: {scores['sc_p']:.3f}")
 print(f"Recall: {scores['sc_r']:.3f}")
 print(f"F1: {scores['sc_f']:.3f}")
-for label in scores['sc_per_type']:
-    print(f"{label}: {scores['sc_per_type'][label]:.3f}")
+
+print("By category:")
+for label in categories:
+    print(f"{label}:")
+    for metric in scores['sc_per_type'][label]:
+        print(f"    {metric}: {scores['sc_per_type'][label][metric]:.3f}")

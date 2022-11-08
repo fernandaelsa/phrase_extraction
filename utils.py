@@ -3,6 +3,8 @@ from itertools import groupby
 from spacy.tokens import Span
 from spacy import displacy
 
+# annotation labels of spans
+categories = ['SUBJECT', 'SIGNAL', 'VERB', 'TIME', 'CONDITION', 'OBJECT', 'OP_SUBJECT', 'OP_SIGNAL', 'OP_VERB', 'OP_TIME', 'OP_CONDITION', 'OP_OBJECT']
 
 # hard-coded triggers
 condition_trigger = ['without', 'within', 'where not', 'where', 'when not', 'when', 'upon', 'until not', 'until', 'unless not', 'unless and until', 'unless', 'timely', 'taking into account', 'subject to', 'regardless of', 'provided that not', 'provided that', 'prior to', 'only if', 'not to exceed', 'not subject to', 'not later than', 'not equal to', 'not earlier than' 'no later than', 'not earlier than', 'no more than', 'no less than', 'no later than', 'no earlier than', 'more than or equal to', 'more than', 'minimum of', 'minimum', 'maximum of', 'maximum', 'lesser than', 'lesser of', 'lesser', 'less than or equal to', 'less than', 'least of', 'least', 'later than', 'last of', 'irrespective of', 'in the case of', 'in the absence of', 'if not', 'if', 'highest', 'greatest of', 'greater than or equal to', 'greater than', 'greater of', 'greater', 'first of', 'extended', 'expressly', 'except', 'exceeds', 'exceed', 'exactly', 'equal to', 'earlier than', 'during', 'conditioned upon', 'conditioned on', 'before', 'at the time when', 'at the time', 'at the latest', 'at most', 'at least', 'as soon as', 'as long as', 'after']
