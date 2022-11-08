@@ -36,14 +36,11 @@ with open('dataset/annotated_gold_standard.jsonl', 'r') as f:
         doc_gold.spans['sc'] = spans
         examples.append(Example(predicted=doc_pred, reference=doc_gold))
 
-        for span in doc_gold.spans['sc']:
-            if span.label == 6110311367300086286:
-                print(span.text)
-
 scores = Scorer.score_spans(examples, 'sc', getter=lambda doc, attr: doc.spans['sc'], allow_overlap=True)
 
-print(f"Precision: {scores['sc_p']}")
-print(f"Recall: {scores['sc_r']}")
-print(f"F1: {scores['sc_f']}")
+# print scores rounded to 3 decimal places
+print(f"Precision: {scores['sc_p']:.3f}")
+print(f"Recall: {scores['sc_r']:.3f}")
+print(f"F1: {scores['sc_f']:.3f}")
 for label in scores['sc_per_type']:
-    print(f"{label}: {scores['sc_per_type'][label]}")
+    print(f"{label}: {scores['sc_per_type'][label]:.3f}")
