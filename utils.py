@@ -229,6 +229,15 @@ def assign_depth(token, current_depth=0):
         assign_depth(child, current_depth+1)
 
 
+# add the span labels to the vocabs of nlp
+def add_span_label_vocabs(nlp):
+    nlp.vocab.strings.add('OP_SUBJECT')
+    nlp.vocab.strings.add('OP_SIGNAL')
+    nlp.vocab.strings.add('OP_VERB')
+    nlp.vocab.strings.add('OP_TIME')
+    nlp.vocab.strings.add('OP_CONDITION')
+    nlp.vocab.strings.add('OP_OBJECT')
+
 # for displacy span visualization
 span_colors = {
     'SUBJECT': '#98DDCA',
