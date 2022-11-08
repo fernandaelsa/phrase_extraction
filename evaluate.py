@@ -12,6 +12,11 @@ if len(sys.argv) != 2:
     quit()
 nlp = spacy.load(sys.argv[1])
 
+# same model used to create the gold standard, so it will tokenzie the same way
+nlp_gold = spacy.load('en_core_web_trf')
+nlp_gold.add_pipe('merge_noun_chunks')
+nlp_gold.add_pipe('merge_entities')
+
 
 examples = []
 
@@ -21,7 +26,7 @@ with open('dataset/annotated_gold_standard.jsonl', 'r') as f:
         d = json.loads(line)
         sentence = d['text']
         doc_pred = nlp(sentence)
-        doc_gold = nlp(sentence, disable=['phrase_spans', 'spancat']) # we just want the tokenization TODO: can just use another simple nlp and then pass Alignment.from_strings in Example constructor below
+        doc_gold = nlp_gold(sentence) # we just want the tokenization
         spans = []
         for s in d['spans']:
             spans.append(Span(doc_gold, s['token_start'], s['token_end']+1, label=s['label']))

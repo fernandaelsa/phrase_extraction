@@ -14,6 +14,14 @@ python extract_docs.py <model_path>
 You can find the resulting .html files in the `result/` folder.
 
 
+## Evaluating a model (Precision/Recall/F-Score)
+
+Once you have a model, to evaluate it against the Gold Standard, call the following script with the model path:
+```
+python evaluate.py <model_path>
+```
+
+
 ## Annotating using Prodigy
 
 Using the suggestions of the Method A that you can manually correct:
