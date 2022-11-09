@@ -1,6 +1,7 @@
 import spacy
 from spacy import Language
 from spacy.tokens import Doc
+from spacy.tokenizer import Tokenizer
 
 from utils import *
 
@@ -8,8 +9,8 @@ from utils import *
 # dependencies that we take without further conditions, except for dep_cond
 dep_signal = ['aux']
 dep_subj = ['nsubj', 'csubj', 'nsubjpass', 'csubjpass']
-dep_obj = ['dobj', 'pobj', 'obj', 'iobj', 'dative', 'agent', 'ccomp', 'xcomp', 'acomp', 'attr']
-dep_verb = ['neg', 'auxpass', 'prt', 'cc', 'conj']
+dep_obj = ['dobj', 'pobj', 'obj', 'iobj', 'dative', 'agent', 'ccomp', 'xcomp', 'attr']
+dep_verb = ['neg', 'auxpass', 'prt', 'cc', 'conj', 'acomp']
 dep_cond = ['acl', 'relcl', 'advcl', 'obl', 'nmod', 'npadvmod', 'nounmod', 'advmod', 'prep'] # these could also be non-conditions, we do additional triggers
 
 
@@ -167,6 +168,7 @@ def extract_sentence(doc):
 
 # register custom extension attributes
 Doc.set_extension('extracted', default=None)
+Doc.set_extension('replacements', default=None)
 
 
 @Language.component('phrase_spans')
@@ -183,33 +185,46 @@ def phrase_spans(doc):
 
 # for Prodigy to find the span group name
 phrase_spans.key = 'sc'
+
+@Language.component('preprocess', retokenizes=True)
+def preprocess(doc):
+    sentence, replacements = simplify_sentence(doc.text)
+    doc = Tokenizer(doc.vocab)(sentence)
+    doc._.replacements = replacements
+    return doc
+
+@Language.component('postprocess', retokenizes=True)
+def postprocess(doc):
+    if doc._.replacements is not None:
+        doc = restore_sentence(doc, doc._.replacements)
+    return doc
     
 
 # extract the sentence explicitly after nlp, allowing text preprocessing and postprocessing for sentence simplification
+if __name__ == '__main__':
+    nlp = spacy.load('en_core_web_trf')
+    nlp.add_pipe('preprocess', first=True)
+    nlp.add_pipe('merge_noun_chunks')
+    nlp.add_pipe('merge_entities')
+    nlp.add_pipe('phrase_spans')
+    nlp.add_pipe('postprocess')
+
+    sentence = "You shall take steps to ensure that the restriction on processing is respected by the processor."
+
+    doc = nlp(sentence)
+
+    print(sentence)
+
+
+# extract the sentence as part of the nlp pipeline, the resulting spans are stored in the doc.spans['sc'] attribute
 # if __name__ == '__main__':
 #     nlp = spacy.load('en_core_web_trf')
 #     nlp.add_pipe('merge_noun_chunks')
 #     nlp.add_pipe('merge_entities')
+#     nlp.add_pipe('phrase_spans')
 
 #     sentence = "The controller and processor shall act to ensure that any natural person acting under the authority of the controller or the processor who has access to personal data does not process personal data except on instructions from the controller, unless he or she is required to do so by Union or Member State law."
-#     # sentence = simplify_sentence(sentence)
 
 #     doc = nlp(sentence)
-#     extracted = extract_sentence(doc)
-
-#     print(sentence)
-#     extracted.print(display_tree=False)
-
-
-# extract the sentence as part of the nlp pipeline, the resulting spans are stored in the doc.spans['sc'] attribute
-if __name__ == '__main__':
-    nlp = spacy.load('en_core_web_trf')
-    nlp.add_pipe('merge_noun_chunks')
-    nlp.add_pipe('merge_entities')
-    nlp.add_pipe('phrase_spans')
-
-    sentence = "The controller and processor shall act to ensure that any natural person acting under the authority of the controller or the processor who has access to personal data does not process personal data except on instructions from the controller, unless he or she is required to do so by Union or Member State law."
-
-    doc = nlp(sentence)
-    doc._.extracted.print(display_tree=False)
-    print(doc.spans['sc'])
+#     doc._.extracted.print(display_tree=False)
+#     print(doc.spans['sc'])
