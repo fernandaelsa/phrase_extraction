@@ -1,6 +1,6 @@
 from functools import reduce
 from itertools import groupby
-from spacy.tokens import Span
+from spacy.tokens import Span, Doc
 from spacy import displacy
 
 # annotation labels of spans
@@ -229,6 +229,73 @@ def assign_depth(token, current_depth=0):
     # assign the next depth to all of my children recursively
     for child in token.children:
         assign_depth(child, current_depth+1)
+
+# find the last occurrence of a substring in a string
+def last_pos_of(string, substrings):
+    return max([(string.rfind(substring), substring) for substring in substrings], key=lambda pair: pair[0])
+
+# calculate the new shifted index after text replacement at start
+def new_index(index, start, old_length, new_length):
+    if index <= start:
+        return index
+    else:
+        return index + new_length - old_length
+
+# verb phrases that might not be parsed correctly by spacy
+verb_chunk = {'take place': 'occur', 'take steps': 'act', 'take measures': 'act', 'take appropriate measures': 'act', 'take into account': 'consider', 'taken into account': 'considered'}
+
+# GDPR glossary that might not be chunked as wished
+gdpr_chunk = {'restriction on processing': 'restriction', 'right of access': 'right', 'special categories of personal data': 'special categories'}
+
+simplifications = verb_chunk | gdpr_chunk
+
+def simplify_sentence(sentence):
+    replaced = [] # list of replacements (pos, key)
+
+    # replace all simplifications in reverse order of appearance in the sentence
+    while True:
+        pos, key = last_pos_of(sentence, simplifications.keys())
+        if pos == -1:
+            break
+        sentence = sentence[:pos] + sentence[pos:].replace(key, simplifications[key], 1)
+        replaced.append((pos, key))
+    
+    return sentence, replaced
+
+def restore_sentence(doc, replaced):
+    sentence = doc.text
+    doc_json = doc.to_json()
+
+    # cleanse the json to only include the tokens, and spans
+    doc_json = {'text': doc_json['text'], 'tokens': doc_json['tokens'], 'spans': doc_json['spans']}
+
+    for pos, key in reversed(replaced):
+        sentence = sentence[:pos] + sentence[pos:].replace(simplifications[key], key, 1)
+
+        # update all start/end indices of tokens and spans after the replacement
+        for token in doc_json['tokens'] + doc_json['spans']['sc']:
+            token['start'] = new_index(token['start'], pos, len(simplifications[key]), len(key))
+            token['end'] = new_index(token['end'], pos, len(simplifications[key]), len(key))
+
+    doc_json['text'] = sentence
+    return Doc(doc.vocab).from_json(doc_json)
+
+def with_preprocessing(nlp, sentence):
+    sentence, replacements = simplify_sentence(sentence)
+    doc = nlp(sentence)
+    doc = restore_sentence(doc, replacements)
+    return doc
+
+def doc_from_annotation(vocab, json):
+    json = {
+        'text': json['text'],
+        'tokens': [{'id': t['id'], 'start': t['start'], 'end': t['end']} for t in json['tokens']],
+        'spans': {
+            'sc': [{'start': s['start'], 'end': s['end'], 'label': s['label'], 'kb_id': ''} for s in json['spans']]
+        }
+    }
+    doc = Doc(vocab).from_json(json)
+    return doc
 
 
 # add the span labels to the vocabs of nlp

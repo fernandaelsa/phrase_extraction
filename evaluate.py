@@ -13,12 +13,6 @@ if len(sys.argv) != 2:
 nlp = spacy.load(sys.argv[1])
 add_span_label_vocabs(nlp)
 
-# same model used to create the gold standard, so it will tokenize the same way
-nlp_gold = spacy.load('en_core_web_trf')
-nlp_gold.add_pipe('merge_noun_chunks')
-nlp_gold.add_pipe('merge_entities')
-add_span_label_vocabs(nlp_gold)
-
 
 examples = []
 
@@ -27,13 +21,10 @@ with open('dataset/annotated_gold_standard.jsonl', 'r') as f:
     for line in f:
         d = json.loads(line)
         sentence = d['text']
-        doc_pred = nlp(sentence)
-        doc_gold = nlp_gold(sentence) # we just want the tokenization
+        # doc_pred = nlp(sentence)
+        doc_pred = with_preprocessing(nlp, sentence)
+        doc_gold = doc_from_annotation(nlp.vocab, d)
         
-        spans = []
-        for s in d['spans']:
-            spans.append(Span(doc_gold, s['token_start'], s['token_end']+1, label=s['label']))
-        doc_gold.spans['sc'] = spans
         examples.append(Example(predicted=doc_pred, reference=doc_gold))
 
 scores = Scorer.score_spans(examples, 'sc', getter=lambda doc, attr: doc.spans['sc'], allow_overlap=True)
