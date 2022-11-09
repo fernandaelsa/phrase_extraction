@@ -58,7 +58,8 @@ def extract(root, extract_obj_recursively=True):
 
     # find signal word
     signal_word = Phrase(tokens_with_dep(root.children, dep_signal))
-
+    if signal_word.as_str().strip() not in signal:
+        signal_word = Phrase([])
 
     # find verb phrase
     verb_phrase = Phrase(find_verb_deco(root), has_skips=True)
