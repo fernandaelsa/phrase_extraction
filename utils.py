@@ -232,7 +232,7 @@ def assign_depth(token, current_depth=0):
 
 # find the last occurrence of a substring in a string
 def last_pos_of(string, substrings):
-    return max([(string.rfind(substring), substring) for substring in substrings], key=lambda pair: pair[0])
+    return max([(string.rfind(substring), substring) for substring in substrings], key=lambda pair: pair[0], default=(-1, ''))
 
 # calculate the new shifted index after text replacement at start
 def new_index(index, start, old_length, new_length):
@@ -366,3 +366,8 @@ def html_table(df):
 
     ]
     return (df.style.set_table_styles(styles)).to_html()
+
+
+# supress CUDA warnings on non-GPU machine
+import warnings
+warnings.filterwarnings("ignore")

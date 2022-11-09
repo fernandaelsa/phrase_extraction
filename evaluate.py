@@ -1,6 +1,5 @@
 import sys
 import spacy
-from spacy.tokens import Doc, Span
 from spacy.training import Example
 from spacy.scorer import Scorer
 from phrase_extraction import *
