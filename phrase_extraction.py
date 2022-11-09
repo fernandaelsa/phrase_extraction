@@ -189,7 +189,8 @@ phrase_spans.key = 'sc'
 @Language.component('preprocess', retokenizes=True)
 def preprocess(doc):
     sentence, replacements = simplify_sentence(doc.text)
-    doc = Tokenizer(doc.vocab)(sentence)
+    tokenizer = Tokenizer(doc.vocab)
+    doc = tokenizer(sentence)
     doc._.replacements = replacements
     return doc
 

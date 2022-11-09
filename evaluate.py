@@ -36,5 +36,5 @@ print(f"F1: {scores['sc_f']:.3f}")
 print("By category:")
 for label in categories:
     print(f"{label}:")
-    for metric in scores['sc_per_type'][label]:
+    for metric in scores['sc_per_type'].get(label, []):
         print(f"    {metric}: {scores['sc_per_type'][label][metric]:.3f}")

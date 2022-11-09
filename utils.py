@@ -13,6 +13,15 @@ time_point = ['years', 'year', 'weeks', 'week', 'seconds', 'second', 'period', '
 
 relative_words = ['which', 'who', 'that', 'whose', 'whom', 'where', 'what']
 
+# verb phrases that might not be parsed correctly by spacy
+verb_chunk = {'take place': 'occur', 'take steps': 'act', 'take measures': 'act', 'take appropriate measures': 'act', 'take into account': 'consider', 'taken into account': 'considered'}
+
+# GDPR glossary that might not be chunked as wished
+gdpr_chunk = {'restriction on processing': 'restriction', 'right of access': 'right', 'special categories of personal data': 'special categories', 'binding corporate rules': 'corporate rules'}
+
+# simplifications of certain word chunks to be made before parsing (preprocessing)
+simplifications = verb_chunk | gdpr_chunk
+
 
 # Phrase is a list of tokens that would represent e.g. a subject phrase, etc.
 class Phrase:
@@ -232,7 +241,9 @@ def assign_depth(token, current_depth=0):
 
 # find the last occurrence of a substring in a string
 def last_pos_of(string, substrings):
-    return max([(string.rfind(substring), substring) for substring in substrings], key=lambda pair: pair[0], default=(-1, ''))
+    last_pos, substr = max([(string.lower().rfind(s), s) for s in substrings], key=lambda pair: pair[0], default=(-1, ''))
+    substr = string[last_pos:last_pos+len(substr)]
+    return last_pos, substr
 
 # calculate the new shifted index after text replacement at start
 def new_index(index, start, old_length, new_length):
@@ -241,24 +252,17 @@ def new_index(index, start, old_length, new_length):
     else:
         return index + new_length - old_length
 
-# verb phrases that might not be parsed correctly by spacy
-verb_chunk = {'take place': 'occur', 'take steps': 'act', 'take measures': 'act', 'take appropriate measures': 'act', 'take into account': 'consider', 'taken into account': 'considered'}
-
-# GDPR glossary that might not be chunked as wished
-gdpr_chunk = {'restriction on processing': 'restriction', 'right of access': 'right', 'special categories of personal data': 'special categories'}
-
-simplifications = verb_chunk | gdpr_chunk
-
 def simplify_sentence(sentence):
     replaced = [] # list of replacements (pos, key)
 
     # replace all simplifications in reverse order of appearance in the sentence
     while True:
-        pos, key = last_pos_of(sentence, simplifications.keys())
+        pos, original = last_pos_of(sentence, simplifications.keys())
         if pos == -1:
             break
-        sentence = sentence[:pos] + sentence[pos:].replace(key, simplifications[key], 1)
-        replaced.append((pos, key))
+        simplified = simplifications[original.lower()]
+        sentence = sentence[:pos] + sentence[pos:].replace(original, simplified, 1)
+        replaced.append((pos, original))
     
     return sentence, replaced
 
@@ -269,13 +273,14 @@ def restore_sentence(doc, replaced):
     # cleanse the json to only include the tokens, and spans
     doc_json = {'text': doc_json['text'], 'tokens': doc_json['tokens'], 'spans': doc_json['spans']}
 
-    for pos, key in reversed(replaced):
-        sentence = sentence[:pos] + sentence[pos:].replace(simplifications[key], key, 1)
+    for pos, original in reversed(replaced):
+        simplified = simplifications[original.lower()]
+        sentence = sentence[:pos] + sentence[pos:].replace(simplified, original, 1)
 
         # update all start/end indices of tokens and spans after the replacement
         for token in doc_json['tokens'] + doc_json['spans']['sc']:
-            token['start'] = new_index(token['start'], pos, len(simplifications[key]), len(key))
-            token['end'] = new_index(token['end'], pos, len(simplifications[key]), len(key))
+            token['start'] = new_index(token['start'], pos, len(simplified), len(original))
+            token['end'] = new_index(token['end'], pos, len(simplified), len(original))
 
     doc_json['text'] = sentence
     return Doc(doc.vocab).from_json(doc_json)
