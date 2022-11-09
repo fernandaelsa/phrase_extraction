@@ -16,15 +16,16 @@ add_span_label_vocabs(nlp)
 examples = []
 
 # load and iterate over jsonl file
-with open('dataset/annotated_gold_standard.jsonl', 'r') as f:
-    for line in f:
-        d = json.loads(line)
-        sentence = d['text']
-        # doc_pred = nlp(sentence)
-        doc_pred = with_preprocessing(nlp, sentence)
-        doc_gold = doc_from_annotation(nlp.vocab, d)
-        
-        examples.append(Example(predicted=doc_pred, reference=doc_gold))
+for file in ['gold_standard', 'training_data', 'reach_data']:
+    with open(f'dataset/annotated_{file}.jsonl', 'r') as f:
+        for line in f:
+            d = json.loads(line)
+            sentence = d['text']
+            # doc_pred = nlp(sentence)
+            doc_pred = with_preprocessing(nlp, sentence)
+            doc_gold = doc_from_annotation(nlp.vocab, d)
+            
+            examples.append(Example(predicted=doc_pred, reference=doc_gold))
 
 scores = Scorer.score_spans(examples, 'sc', getter=lambda doc, attr: doc.spans['sc'], allow_overlap=True)
 
