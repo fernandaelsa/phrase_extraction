@@ -26,7 +26,7 @@ python evaluate.py <model_path>
 
 Using the suggestions of the Method A that you can manually correct:
 ```
-prodigy spans.correct initial_gold ./phrase_spans_model ./dataset/gold_standard.jsonl --label SUBJECT,SIGNAL,VERB,TIME,CONDITION,OBJECT,OP_SUBJECT,OP_SIGNAL,OP_VERB,OP_TIME,OP_CONDITION,OP_OBJECT -F phrase_extraction.py -c phrase_spans
+prodigy spans.correct training_data_v2 ./models/method_a ./dataset/training.jsonl --label SUBJECT,SIGNAL,VERB,TIME,CONDITION,OBJECT,OP_SUBJECT,OP_SIGNAL,OP_VERB,OP_TIME,OP_CONDITION,OP_OBJECT -F phrase_extraction.py -c phrase_spans
 ```
 
 Exporting annotated data to json
