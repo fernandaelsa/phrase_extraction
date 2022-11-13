@@ -1,0 +1,13 @@
+[
+  "SUBJECT",
+  "SIGNAL",
+  "VERB",
+  "OBJECT",
+  "OP_SUBJECT",
+  "OP_VERB",
+  "OP_OBJECT",
+  "CONDITION",
+  "OP_CONDITION",
+  "TIME",
+  "OP_SIGNAL"
+]
