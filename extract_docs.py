@@ -60,7 +60,7 @@ def extract_document(folder_name):
     out_path = 'result/' + out_path
     os.makedirs(os.path.dirname(out_path), exist_ok=True) # create folder if not exist
     with open(out_path, 'w') as f:
-      f.write(f'{span_html}\n\n<br/><hr><br/>\n\n{table_html}')
+      f.write(f'<body style="font-family:sans-serif">{span_html}\n\n<br/><hr><br/>\n\n{table_html}</body>')
     
   return result_file_paths
 
@@ -77,10 +77,11 @@ if __name__ == '__main__':
   result_paths += extract_document('realization_document')
   result_paths += extract_document('regulatory_document')
 
-  # create a convenient index.html file to navigate through the results
+  # create a convinient index.html file to navigate through the results
   with open('result/index.html', 'w') as f:
-    index = '<html><body><h1>Results</h1>'
+    index = '<html><body style="font-family:sans-serif"><h1>Results</h1>\n'
     for path in result_paths:
-      index += f'<a href="{path}">{path}</a><br/>'
+      index += f'<h2><a href="{path}">{path}</a>:</h2>\n'
+      index += f'<iframe src="{path}" width=100% height=500></iframe><br/><br/><hr><br/>\n'
     index += '</body></html>'
     f.write(index)

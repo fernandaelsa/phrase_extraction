@@ -9,9 +9,9 @@ from utils import *
 # dependencies that we take without further conditions, except for dep_cond
 dep_signal = ['aux']
 dep_subj = ['nsubj', 'csubj', 'nsubjpass', 'csubjpass']
-dep_obj = ['dobj', 'pobj', 'obj', 'iobj', 'dative', 'agent', 'ccomp', 'xcomp', 'attr']
+dep_obj = ['dobj', 'pobj', 'iobj', 'dative', 'agent', 'ccomp', 'xcomp', 'attr']
 dep_verb = ['neg', 'auxpass', 'prt', 'cc', 'conj', 'acomp']
-dep_cond = ['acl', 'relcl', 'advcl', 'obl', 'nmod', 'npadvmod', 'nounmod', 'advmod', 'prep'] # these could also be non-conditions, we do additional triggers
+dep_cond = ['acl', 'relcl', 'advcl', 'nmod', 'npadvmod', 'nounmod', 'advmod', 'prep'] # these could also be non-conditions, we do additional triggers
 
 
 def find_verb_deco(root):
@@ -36,10 +36,10 @@ def find_verb_deco(root):
     return all_decos
 
 
-def find_times_conds(potential_cond_roots):
+def find_times_conds(potential_cond):
     times = []
     conds = []
-    for cond_phrase in potential_cond_roots:
+    for cond_phrase in potential_cond:
         if len(cond_phrase) > 1:
             if cond_phrase.has_trigger(condition_trigger) and cond_phrase.as_str().strip() not in condition_trigger:
                 if cond_phrase.has_trigger(time_point):
@@ -56,15 +56,18 @@ def extract(root, extract_obj_recursively=True):
     if extract_obj_recursively is False, then objects is a list of Phrase
     '''
 
-    # find signal word
-    signal_word = Phrase(tokens_with_dep(root.children, dep_signal))
-    if signal_word.as_str().strip() not in signal:
-        signal_word = Phrase([])
-
     # find verb phrase
     verb_phrase = Phrase(find_verb_deco(root), has_skips=True)
-    verb_phrase_children = verb_phrase.get_children()
+    
+    # find signal word
+    signal_word = Phrase(tokens_with_dep(root.children, dep_signal))
+    if signal_word.as_str().strip() not in signal: # not in the whitelist, add to verb instead
+        verb_phrase += signal_word
+        verb_phrase.tokens.sort(key=by_index)
+        signal_word = Phrase([])
 
+    # subject, object and conditions should be a child of the verb phrase
+    verb_phrase_children = verb_phrase.get_children()
 
     # find subject phrases
     subj_phrases = phrases_from_roots(tokens_with_dep(verb_phrase_children, dep_subj))
@@ -187,46 +190,17 @@ def phrase_spans(doc):
 # for Prodigy to find the span group name
 phrase_spans.key = 'sc'
 
-@Language.component('preprocess', retokenizes=True)
-def preprocess(doc):
-    sentence, replacements = simplify_sentence(doc.text)
-    tokenizer = Tokenizer(doc.vocab)
-    doc = tokenizer(sentence)
-    doc._.replacements = replacements
-    return doc
+# experimental pre- and post-processing pipeline components, use with_preprocessing instead
+# @Language.component('preprocess', retokenizes=True)
+# def preprocess(doc):
+#     sentence, replacements = simplify_sentence(doc.text)
+#     tokenizer = Tokenizer(doc.vocab)
+#     doc = tokenizer(sentence)
+#     doc._.replacements = replacements
+#     return doc
 
-@Language.component('postprocess', retokenizes=True)
-def postprocess(doc):
-    if doc._.replacements is not None:
-        doc = restore_sentence(doc, doc._.replacements)
-    return doc
-    
-
-# extract the sentence explicitly after nlp, allowing text preprocessing and postprocessing for sentence simplification
-if __name__ == '__main__':
-    nlp = spacy.load('en_core_web_trf')
-    nlp.add_pipe('preprocess', first=True)
-    nlp.add_pipe('merge_noun_chunks')
-    nlp.add_pipe('merge_entities')
-    nlp.add_pipe('phrase_spans')
-    nlp.add_pipe('postprocess')
-
-    sentence = "You shall take steps to ensure that the restriction on processing is respected by the processor."
-
-    doc = nlp(sentence)
-
-    print(sentence)
-
-
-# extract the sentence as part of the nlp pipeline, the resulting spans are stored in the doc.spans['sc'] attribute
-# if __name__ == '__main__':
-#     nlp = spacy.load('en_core_web_trf')
-#     nlp.add_pipe('merge_noun_chunks')
-#     nlp.add_pipe('merge_entities')
-#     nlp.add_pipe('phrase_spans')
-
-#     sentence = "The controller and processor shall act to ensure that any natural person acting under the authority of the controller or the processor who has access to personal data does not process personal data except on instructions from the controller, unless he or she is required to do so by Union or Member State law."
-
-#     doc = nlp(sentence)
-#     doc._.extracted.print(display_tree=False)
-#     print(doc.spans['sc'])
+# @Language.component('postprocess', retokenizes=True)
+# def postprocess(doc):
+#     if doc._.replacements is not None:
+#         doc = restore_sentence(doc, doc._.replacements)
+#     return doc
