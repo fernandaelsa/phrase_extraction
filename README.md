@@ -1,12 +1,25 @@
-# phrase_extraction
+# Phrase Extraction
 
-## Extracting from text files
+## (TODO) spaCy Setup
+
+```
+pip install -U pip setuptools wheel
+pip install -U spacy
+python -m spacy download en_core_web_trf
+```
+
+Optionally, install [Prodigy](https://prodi.gy/) - Academic License can be requested by emailing contact@explosion.ai.
+
+## Creating the models for method A, B, C
+
+Although the pre-annotated dataset is already included in this repository, you must create the models yourself, due to their large file sizes. See the `create_models.ipynb` Jupyter Notebook to see how. You can simply run the code snippets/commands in the notebook to export/train the models.
+
+
+## Extracting from input text files and saving as .html
 
 Put each sentence into a .txt file (one sentence per file) in the `input/realization_document/` and `input/regulatory_document/` folders.
 
-Additionally, save the spaCy model with the span categorization pipeline under the `models/` folder.
-
-Finally, to extract all input text files using the model, run the Python script with the path to the above saved model:
+Then, to extract all input text files using the model, run the Python script with the path to the above saved model:
 ```
 python extract_docs.py <model_path>
 ```
@@ -19,27 +32,4 @@ You can find the resulting .html files in the `result/` folder.
 Once you have a model, to evaluate it against the Gold Standard, call the following script with the model path:
 ```
 python evaluate.py <model_path>
-```
-
-
-## Annotating using Prodigy
-
-Using the suggestions of the Method A that you can manually correct:
-```
-prodigy spans.correct training_data_v2 ./models/method_a ./dataset/training.jsonl --label SUBJECT,SIGNAL,VERB,TIME,CONDITION,OBJECT,OP_SUBJECT,OP_SIGNAL,OP_VERB,OP_TIME,OP_CONDITION,OP_OBJECT -F phrase_extraction.py -c phrase_spans
-```
-
-Exporting annotated data to json
-```
-prodigy db-out news_headlines > ./news_headlines.jsonl
-```
-
-Train directly with prodigy:
-```
-prodigy train ./output_model --spancat initial_gold
-```
-
-Exporting the annotation database as spacy file:
-```
-prodigy data-to-spacy ./output_dataset --spancat initial_gold
 ```

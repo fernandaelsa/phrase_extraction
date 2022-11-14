@@ -77,7 +77,7 @@ if __name__ == '__main__':
   result_paths += extract_document('realization_document')
   result_paths += extract_document('regulatory_document')
 
-  # create a convinient index.html file to navigate through the results
+  # create a convenient index.html file to navigate through the results
   with open('result/index.html', 'w') as f:
     index = '<html><body><h1>Results</h1>'
     for path in result_paths:

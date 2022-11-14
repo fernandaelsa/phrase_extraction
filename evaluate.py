@@ -3,6 +3,7 @@ import spacy
 from spacy.training import Example
 from spacy.scorer import Scorer
 from phrase_extraction import *
+from span_suggester import *
 import json
 
 # load model to evaluate
@@ -16,13 +17,13 @@ add_span_label_vocabs(nlp)
 examples = []
 
 # load and iterate over jsonl file
-for file in ['gold_standard', 'training_data', 'reach_data']:
+for file in ['reach_data']:
     with open(f'dataset/annotated_{file}.jsonl', 'r') as f:
         for line in f:
             d = json.loads(line)
             sentence = d['text']
-            # doc_pred = nlp(sentence)
-            doc_pred = with_preprocessing(nlp, sentence)
+            doc_pred = nlp(sentence)
+            # doc_pred = with_preprocessing(nlp, sentence)
             doc_gold = doc_from_annotation(nlp.vocab, d)
             
             examples.append(Example(predicted=doc_pred, reference=doc_gold))
