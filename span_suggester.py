@@ -6,7 +6,7 @@ from spacy.pipeline.spancat import Suggester
 from spacy.tokens import Doc
 from spacy.util import registry
 
-
+# This implementation is from spaCy's experimental repsoitory: https://github.com/explosion/spacy-experimental/blob/master/spacy_experimental/span_suggesters/merge_suggesters.py
 def merge_suggestions(suggestions: List[Ragged], ops: Optional[Ops] = None) -> Ragged:
     if ops is None:
         ops = get_current_ops()
@@ -36,6 +36,7 @@ def merge_suggestions(suggestions: List[Ragged], ops: Optional[Ops] = None) -> R
     return output
 
 
+# This implementation is from spaCy's experimental repsoitory: https://github.com/explosion/spacy-experimental/blob/master/spacy_experimental/span_suggesters/subtree_suggester.py
 @registry.misc("ngram_subtree_suggester")
 def build_ngram_subtree_suggester(sizes: List[int]) -> Suggester:
     """Suggest ngrams and subtrees. Requires annotations from the DependencyParser"""

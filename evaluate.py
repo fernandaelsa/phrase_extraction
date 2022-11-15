@@ -17,7 +17,7 @@ add_span_label_vocabs(nlp)
 examples = []
 
 # load and iterate over jsonl file
-for file in ['reach_data']:
+for file in ['gold_standard']:
     with open(f'dataset/annotated_{file}.jsonl', 'r') as f:
         for line in f:
             d = json.loads(line)
